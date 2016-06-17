@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 use std::vec::Vec;
+use std::boxed::Box;
 
 #[derive(Debug)]
 pub struct QuadTree<T: Debug> {
@@ -14,10 +15,14 @@ enum Child<T: Sized + Debug> {
 
 impl<T: Debug> Child<T> {
     fn visit(&self) {
-        println!("{:?}", self);
-        // match self {
-
-        // }
+        match self {
+            &Child::Leaf(ref t) => {
+                println!("{:?}", t);
+            },
+            &Child::Inner(ref b) => {
+                b.as_ref().visit();
+            },
+        }
     }
 }
 
@@ -59,35 +64,8 @@ impl<T: Debug> Node<T> {
                 }
             }
         }
-
-
-        // if self.children.len() < 1 {
-            
-        // } else {
-        //     match self.children.pop().unwrap() {
-        //         Child::LeafNode(t) => {
-        //         },
-        //         None => expr,
-        //     }
-
-
-
-
-
-
-        //     let tmp_t = self.children.pop().unwrap();
-        //     let mut new_node = Node::new();
-        //     new_node.add(tmp_t);
-        //     self.children.push(Child::InnerNode(Box::new(new_node)));
-        //     self.children.push(t);
-        // }
     }
 }
-
-// #[derive(Debug)]
-// struct Leaf<T: Sized + Debug> {
-//     t: T
-// }
 
 impl<T: Debug> QuadTree<T> {
     pub fn new() -> QuadTree<T> {
@@ -95,7 +73,8 @@ impl<T: Debug> QuadTree<T> {
     }
 
     pub fn visit(&self) {
-        println!("{:?}", self.root);
+        // println!("{:?}", self.root);
+        self.root.visit();
     }
 
     pub fn add(&mut self, t: T) {
