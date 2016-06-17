@@ -1,0 +1,6 @@
+[package]
+name = "quadtree"
+version = "0.1.0"
+authors = ["niklasf <niklasf@cs.umu.se>"]
+
+[dependencies]
