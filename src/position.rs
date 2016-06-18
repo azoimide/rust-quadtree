@@ -129,4 +129,20 @@ impl Span<PosSpan, Position> for PosSpan {
                     max_x.unwrap() - min_x.unwrap(),
                     max_y.unwrap() - min_y.unwrap());
     }
+
+    fn overlaps(&self, other: &PosSpan) -> bool {
+        if self.nw.x + self.width <= other.nw.x {
+            return false;
+        }
+        if other.nw.x + other.width <= self.nw.x {
+            return false;
+        }
+        if self.nw.y + self.height <= other.nw.y {
+            return false;
+        }
+        if other.nw.y + other.height <= self.nw.y {
+            return false;
+        }
+        return true;
+    }
 }

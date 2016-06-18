@@ -36,7 +36,7 @@ fn main() {
 
     let mut tree = QuadTree::new(PosSpan::new(0,0,2,2));
     tree.print();
-    tree.add(Position { x: 0, y: 10 });
+    tree.add(Position { x: 18, y: 10 });
     tree.print();
 
 

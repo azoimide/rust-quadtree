@@ -157,6 +157,8 @@ pub trait Span<S: Span<S, T>, T>: Clone + Eq + PartialEq {
     fn can_split(&self) -> bool;
     fn merge(spans: Values<Dir, S>) -> S;
 
+    fn overlaps(&self, other: &S) -> bool;
+
     fn contains(&self, t: &T) -> bool {
         return self.dir_of(t) == None;
     }
