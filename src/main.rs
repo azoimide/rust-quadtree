@@ -13,7 +13,7 @@ fn main() {
     tree.add(Position { x: 1, y: 2 });
     tree.add(Position { x: 1, y: 2 });
     tree.add(Position { x: 1, y: 2 });
-    println!("{:?}", tree);
+    tree.print();
 
 
 }

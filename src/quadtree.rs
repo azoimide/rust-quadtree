@@ -101,6 +101,18 @@ impl<S: Span<S, T> + Debug, T: Debug> Node<S, T> {
     //         _ => unreachable!()
     //     }
     // }
+
+    fn print(&self, depth: usize) {
+        println!("Node");
+        let indent = String::from_utf8(vec![b' '; 4 * depth]).unwrap();
+        for (key, child) in self.children.iter() {
+            print!("{}{:?}: ", indent, key);
+            match child {
+                &Child::Inner(ref b) => b.as_ref().print(depth + 1),
+                &Child::Leaf(_, ref t) => println!("{:?}", t),
+            };
+        }
+    }
 }
 
 impl<S: Span<S, T> + Debug, T: Debug> QuadTree<S, T> {
@@ -119,6 +131,11 @@ impl<S: Span<S, T> + Debug, T: Debug> QuadTree<S, T> {
     pub fn add(&mut self, t: T) {
         assert_eq!(None, self.root.span.dir_of(&t));
         self.root.add(t);
+    }
+
+    pub fn print(&self) {
+        print!("root: ");
+        self.root.print(1);
     }
 }
 
