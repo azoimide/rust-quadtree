@@ -97,8 +97,7 @@ pub struct PosSpan {
     pub height: i32
 }
 
-impl PosSpan {
-// impl<Position> Span<Position> for PosSpan {
+impl Span<Position> for PosSpan {
     fn dir_of(&self, t: &Position) -> Option<Dir> {
         if t.x < self.nw.x {
             if t.y < self.nw.y {
@@ -132,13 +131,13 @@ impl PosSpan {
     // }
 }
 
-// pub trait Span<T> {
-//     fn dir_of(&self, t: &T) -> Option<Dir>;
-//     // fn north_span(&self) -> Span<T>;
-//     // fn south_span(&self) -> Span<T>;
-//     // fn east_span(&self) -> Span<T>;
-//     // fn west_span(&self) -> Span<T>;
-// }
+pub trait Span<T> {
+    fn dir_of(&self, t: &T) -> Option<Dir>;
+    // fn north_span(&self) -> Span<T>;
+    // fn south_span(&self) -> Span<T>;
+    // fn east_span(&self) -> Span<T>;
+    // fn west_span(&self) -> Span<T>;
+}
 
 
 
