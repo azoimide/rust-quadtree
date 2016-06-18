@@ -75,7 +75,7 @@ impl Span<PosSpan, Position> for PosSpan {
     }
 
     fn split(&self) -> HashMap<Dir, PosSpan> {
-        let left_x = self.nw.y;
+        let left_x = self.nw.x;
         let left_y = self.nw.y;
         let width_mid = self.width / 2;
         let height_mid = self.height / 2;
@@ -87,7 +87,22 @@ impl Span<PosSpan, Position> for PosSpan {
         return result;
     }
 
+    fn expand(&self, dir: &Dir) -> PosSpan {
+        return match dir {
+            &Dir::N => PosSpan::new(self.nw.x, self.nw.y - self.height, self.width * 2, self.height * 2), 
+            &Dir::S => PosSpan::new(self.nw.x, self.nw.y, self.width * 2, self.height * 2), 
+            &Dir::E => PosSpan::new(self.nw.x, self.nw.y, self.width * 2, self.height * 2), 
+            &Dir::W => PosSpan::new(self.nw.x - self.width, self.nw.y, self.width * 2, self.height * 2), 
+            &Dir::NE => PosSpan::new(self.nw.x, self.nw.y - self.height, self.width * 2, self.height * 2), 
+            &Dir::NW => PosSpan::new(self.nw.x - self.width, self.nw.y - self.height, self.width * 2, self.height * 2), 
+            &Dir::SE => PosSpan::new(self.nw.x, self.nw.y, self.width * 2, self.height * 2), 
+            &Dir::SW => PosSpan::new(self.nw.x - self.width, self.nw.y, self.width * 2, self.height * 2)
+        };
+    }
+
     fn merge(spans: Values<Dir, PosSpan>) -> PosSpan {
+        unreachable!("Doesn't work");
+
         let mut min_x = None;
         let mut min_y = None;
         let mut max_x = None;

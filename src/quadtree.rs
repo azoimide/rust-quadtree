@@ -1,5 +1,6 @@
 extern crate core;
 
+use std::mem;
 use std::fmt::Debug;
 use std::vec::Vec;
 use std::boxed::Box;
@@ -57,7 +58,8 @@ impl<S: Span<S, T> + Debug, T: Debug> Node<S, T> {
 
     fn add(&mut self, t: T) {
         let mut sub_spans = self.span.split();
-        // println!("{:?}", sub_spans);
+        println!("add span: {:?}", self.span);
+        println!("add sub spans: {:?}", sub_spans);
         for (key, span) in sub_spans.drain() {
             if span.contains(&t) {
                 if self.children.contains_key(&key) {
@@ -91,16 +93,6 @@ impl<S: Span<S, T> + Debug, T: Debug> Node<S, T> {
         unreachable!("Tried to add {:?} to node with span {:?}", t, self.span);
     }
 
-    // fn get_child(&self, i: i32) -> &mut Child<S, T> {
-    //     match i {
-    //         0 => return self.nw_child,
-    //         1 => return self.ne_child,
-    //         2 => return self.sw_child,
-    //         3 => return self.se_child,
-    //         _ => unreachable!()
-    //     }
-    // }
-
     fn print(&self, depth: usize) {
         println!("Node {:?}", self.span);
         let indent = String::from_utf8(vec![b' '; 4 * depth]).unwrap();
@@ -118,85 +110,36 @@ impl<S: Span<S, T> + Debug, T: Debug> QuadTree<S, T> {
     pub fn new(span: S) -> QuadTree<S, T> {
         return QuadTree { root: Node::new(span) };
     }
-    // pub fn new(span: PosSpan) -> QuadTree<T> {
-    //     return QuadTree { root: Node::new() };
-    // }
-
-    // pub fn visit(&self) {
-    //     // println!("{:?}", self.root);
-    //     self.root.visit();
-    // }
 
     pub fn add(&mut self, t: T) {
-        if !self.root.span.contains(&t) {
-            let new_spans = expand_span(&self.root.span, &t);
-            println!("{:?}", new_spans);
-            let new_root = Node::new(S::merge(new_spans.values()));
-            println!("{:?}", new_root);
-        }
-        // self.root.add(t);
+        println!("add: {:?}", t);
+        self.ensure_contains(&t);
+        println!("---");
+        self.root.add(t);
     }
 
     pub fn print(&self) {
         print!("root: ");
         self.root.print(1);
     }
-}
 
-pub fn expand_span<S: Span<S, T>, T>(span: &S, t: &T) -> HashMap<Dir, S> {
-    let dir = span.dir_of(&t).unwrap();
-    let mut new_spans = HashMap::new();
-    match dir {
-        Dir::N => {
-            // new_spans.insert(Dir::NE, span.north_span().east_span());
-            new_spans.insert(Dir::NW, span.north_span());
-            // new_spans.insert(Dir::SE, span.east_span());
-            new_spans.insert(Dir::SW, span.clone());
-        }, 
-        Dir::S => {
-            // new_spans.insert(Dir::NE, span.east_span());
-            new_spans.insert(Dir::NW, span.clone());
-            // new_spans.insert(Dir::SE, span.south_span().east_span());
-            new_spans.insert(Dir::SW, span.south_span());
-        }, 
-        Dir::E => {
-            new_spans.insert(Dir::NE, span.east_span());
-            new_spans.insert(Dir::NW, span.clone());
-            // new_spans.insert(Dir::SE, span.south_span().east_span());
-            // new_spans.insert(Dir::SW, span.south_span());
-        }, 
-        Dir::W => {
-            // new_spans.insert(Dir::NE, span.north_span());
-            // new_spans.insert(Dir::NW, span.north_span().west_span());
-            new_spans.insert(Dir::SE, span.clone());
-            new_spans.insert(Dir::SW, span.west_span());
-        }, 
-        Dir::NE => {
-            new_spans.insert(Dir::NE, span.north_span().east_span());
-            // new_spans.insert(Dir::NW, span.north_span());
-            // new_spans.insert(Dir::SE, span.east_span());
-            new_spans.insert(Dir::SW, span.clone());
-        }, 
-        Dir::NW => {
-            // new_spans.insert(Dir::NE, span.north_span());
-            new_spans.insert(Dir::NW, span.north_span().west_span());
-            new_spans.insert(Dir::SE, span.clone());
-            // new_spans.insert(Dir::SW, span.west_span());
-        }, 
-        Dir::SE => {
-            // new_spans.insert(Dir::NE, span.east_span());
-            new_spans.insert(Dir::NW, span.clone());
-            new_spans.insert(Dir::SE, span.east_span().south_span());
-            // new_spans.insert(Dir::SW, span.south_span());
-        }, 
-        Dir::SW => {
-            new_spans.insert(Dir::NE, span.clone());
-            // new_spans.insert(Dir::NW, span.west_span());
-            // new_spans.insert(Dir::SE, span.south_span());
-            new_spans.insert(Dir::SW, span.south_span().west_span());
+    fn ensure_contains(&mut self, t: &T) {
+        while !self.root.span.contains(&t) {
+            let new_span = self.root.span.expand(&self.root.span.dir_of(&t).unwrap());
+            println!("new span: {:?}", new_span);
+            let mut new_root = Node::new(new_span);
+            println!("split: {:?}", new_root.span.split());
+            for (dir, span) in new_root.span.split() {
+                println!("root: {:?} sub: {:?}", self.root.span, span);
+                if span == self.root.span {
+                    mem::swap(&mut self.root, &mut new_root);
+                    self.root.children.insert(dir.clone(), Child::Inner(Box::new(new_root)));
+                    break;
+                }
+                // unreachable!();
+            }
         }
     }
-    return new_spans;
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -204,76 +147,17 @@ pub enum Dir { N, S, E, W, NE, NW, SE, SW }
 
 pub trait Span<S: Span<S, T>, T>: Clone + Eq + PartialEq {
     fn dir_of(&self, t: &T) -> Option<Dir>;
-    fn can_split(&self) -> bool;
-    fn split(&self) -> HashMap<Dir, S>;
     fn north_span(&self) -> S;
     fn south_span(&self) -> S;
     fn east_span(&self) -> S;
     fn west_span(&self) -> S;
+    
+    fn expand(&self, dir: &Dir) -> S;
+    fn split(&self) -> HashMap<Dir, S>;
+    fn can_split(&self) -> bool;
+    fn merge(spans: Values<Dir, S>) -> S;
+
     fn contains(&self, t: &T) -> bool {
         return self.dir_of(t) == None;
     }
-    // fn expand(&self, t: &T) -> HashMap<Dir, S> {
-    //     let dir = self.dir_of(&t).unwrap();
-    //     let mut new_spans = HashMap::new();
-    //     match dir {
-    //         Dir::N => {
-    //             // new_spans.insert(Dir::NE, self.north_span().east_span());
-    //             new_spans.insert(Dir::NW, self.north_span());
-    //             // new_spans.insert(Dir::SE, self.east_span());
-    //             new_spans.insert(Dir::SW, self.clone());
-    //         }, 
-    //         Dir::S => {
-    //             // new_spans.insert(Dir::NE, self.east_span());
-    //             new_spans.insert(Dir::NW, self.clone());
-    //             // new_spans.insert(Dir::SE, self.south_span().east_span());
-    //             new_spans.insert(Dir::SW, self.south_span());
-    //         }, 
-    //         Dir::E => {
-    //             new_spans.insert(Dir::NE, self.east_span());
-    //             new_spans.insert(Dir::NW, self.clone());
-    //             // new_spans.insert(Dir::SE, self.south_span().east_span());
-    //             // new_spans.insert(Dir::SW, self.south_span());
-    //         }, 
-    //         Dir::W => {
-    //             // new_spans.insert(Dir::NE, self.north_span());
-    //             // new_spans.insert(Dir::NW, self.north_span().west_span());
-    //             new_spans.insert(Dir::SE, self.clone());
-    //             new_spans.insert(Dir::SW, self.west_span());
-    //         }, 
-    //         Dir::NE => {
-    //             new_spans.insert(Dir::NE, self.north_span().east_span());
-    //             // new_spans.insert(Dir::NW, self.north_span());
-    //             // new_spans.insert(Dir::SE, self.east_span());
-    //             new_spans.insert(Dir::SW, self.clone());
-    //         }, 
-    //         Dir::NW => {
-    //             // new_spans.insert(Dir::NE, self.north_span());
-    //             new_spans.insert(Dir::NW, self.north_span().west_span());
-    //             new_spans.insert(Dir::SE, self.clone());
-    //             // new_spans.insert(Dir::SW, self.west_span());
-    //         }, 
-    //         Dir::SE => {
-    //             // new_spans.insert(Dir::NE, self.east_span());
-    //             new_spans.insert(Dir::NW, self.clone());
-    //             new_spans.insert(Dir::SE, self.east_span().south_span());
-    //             // new_spans.insert(Dir::SW, self.south_span());
-    //         }, 
-    //         Dir::SW => {
-    //             new_spans.insert(Dir::NE, self.clone());
-    //             // new_spans.insert(Dir::NW, self.west_span());
-    //             // new_spans.insert(Dir::SE, self.south_span());
-    //             new_spans.insert(Dir::SW, self.south_span().west_span());
-    //         }
-    //     }
-    //     return new_spans;
-    // }
-    fn merge(spans: Values<Dir, S>) -> S;
 }
-
-
-
-
-
-
-
