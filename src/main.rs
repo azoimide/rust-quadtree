@@ -21,17 +21,23 @@ fn main() {
     // // tree.add(Position { x: 1, y: 2 });
     // tree.print();
 
-    let mut tree = QuadTree::new(PosSpan::new(0,0,4,4));
-    tree.print();
-    tree.add(Position { x: 0, y: 0 });
-    tree.add(Position { x: 1, y: 0 });
-    tree.add(Position { x: 0, y: 1 });
-    tree.print();
-    tree.add(Position { x: 1, y: 1 });
-    tree.add(Position { x: 1, y: 1 });
-    tree.add(Position { x: 1, y: 1 });
-    tree.add(Position { x: 1, y: 2 });
-    tree.add(Position { x: 1, y: 3 });
+    // let mut tree = QuadTree::new(PosSpan::new(0,0,4,4));
+    // tree.print();
+    // tree.add(Position { x: 0, y: 0 });
+    // tree.add(Position { x: 1, y: 0 });
+    // tree.add(Position { x: 0, y: 1 });
+    // tree.print();
+    // tree.add(Position { x: 1, y: 1 });
+    // tree.add(Position { x: 1, y: 1 });
+    // tree.add(Position { x: 1, y: 1 });
+    // tree.add(Position { x: 1, y: 2 });
+    // tree.add(Position { x: 1, y: 3 });
+    // tree.print();
+
+    let mut tree = QuadTree::new(PosSpan::new(0,0,2,2));
+    tree.add(Position { x: 0, y: 2 });
+    tree.add(Position { x: -1, y: 0 });
+    tree.add(Position { x: -2, y: -1 });
     tree.print();
 
 

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::collections::hash_map::Values;
 use quadtree::{Span, Dir};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -84,5 +85,33 @@ impl Span<PosSpan, Position> for PosSpan {
         result.insert(Dir::SW, PosSpan::new(left_x, left_y + height_mid, width_mid, self.height - height_mid));
         result.insert(Dir::SE, PosSpan::new(left_x + width_mid, left_y + height_mid, self.width - width_mid, self.height - height_mid));
         return result;
+    }
+
+    fn merge(spans: Values<Dir, PosSpan>) -> PosSpan {
+        let mut min_x = None;
+        let mut min_y = None;
+        let mut max_x = None;
+        let mut max_y = None;
+
+        for span in spans {
+            if min_x == None || min_x.unwrap() > span.nw.x {
+                min_x = Some(span.nw.x);
+            }
+            if min_y == None || min_y.unwrap() > span.nw.y {
+                min_y = Some(span.nw.y);
+            }
+            if max_x == None || max_x.unwrap() < span.nw.x + span.width {
+                max_x = Some(span.nw.x + span.width);
+            }
+            if max_y == None || max_y.unwrap() < span.nw.y + span.height {
+                max_y = Some(span.nw.y + span.height);
+            }
+        }
+
+        return PosSpan::new(
+                    min_x.unwrap(),
+                    min_y.unwrap(),
+                    max_x.unwrap() - min_x.unwrap(),
+                    max_y.unwrap() - min_y.unwrap());
     }
 }
