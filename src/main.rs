@@ -6,15 +6,14 @@ use position::{Position, PosSpan};
 
 fn main() {
 
-    let mut tree = QuadTree::new();
-    tree.visit();
+    let mut tree = QuadTree::new(PosSpan::new(0,0,10,10));
+    println!("{:?}", tree);
+    tree.add(Position { x: 1, y: 2 });
+    tree.add(Position { x: 1, y: 7 });
     tree.add(Position { x: 1, y: 2 });
     tree.add(Position { x: 1, y: 2 });
     tree.add(Position { x: 1, y: 2 });
-    tree.add(Position { x: 1, y: 2 });
-    tree.add(Position { x: 1, y: 2 });
-    // tree.add(Position { x: 1, y: 2 });
-    tree.visit();
+    println!("{:?}", tree);
 
 
 }

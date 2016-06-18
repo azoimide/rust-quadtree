@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use quadtree::{Span, Dir};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -55,7 +56,7 @@ impl Span<PosSpan, Position> for PosSpan {
     fn north_span(&self) -> PosSpan {
         return PosSpan::new(self.nw.x, self.nw.y - self.height, self.width, self.height);
     }
-    
+
     fn south_span(&self) -> PosSpan {
         return PosSpan::new(self.nw.x, self.nw.y + self.height, self.width, self.height);
     }
@@ -72,16 +73,16 @@ impl Span<PosSpan, Position> for PosSpan {
         return self.width > 1 && self.height > 1;
     }
 
-    fn split(self) -> Vec<PosSpan> {
+    fn split(&self) -> HashMap<Dir, PosSpan> {
         let left_x = self.nw.y;
         let left_y = self.nw.y;
         let width_mid = self.width / 2;
         let height_mid = self.height / 2;
-        return vec![
-            PosSpan::new(left_x, left_y, width_mid, height_mid),
-            PosSpan::new(left_x + width_mid, left_y, self.width - width_mid, height_mid),
-            PosSpan::new(left_x, left_y + height_mid, width_mid, self.height - height_mid),
-            PosSpan::new(left_x + width_mid, left_y + height_mid, self.width - width_mid, self.height - height_mid)
-        ];
+        let mut result = HashMap::new();
+        result.insert(Dir::NW, PosSpan::new(left_x, left_y, width_mid, height_mid));
+        result.insert(Dir::NE, PosSpan::new(left_x + width_mid, left_y, self.width - width_mid, height_mid));
+        result.insert(Dir::SW, PosSpan::new(left_x, left_y + height_mid, width_mid, self.height - height_mid));
+        result.insert(Dir::SE, PosSpan::new(left_x + width_mid, left_y + height_mid, self.width - width_mid, self.height - height_mid));
+        return result;
     }
 }
