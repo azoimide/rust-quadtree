@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use quadtree::{Span, Dir};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Position {
     pub x: i32,
     pub y: i32
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct PosSpan {
     pub nw: Position,
     pub width: i32,

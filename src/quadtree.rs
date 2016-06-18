@@ -1,7 +1,10 @@
+extern crate core;
+
 use std::fmt::Debug;
 use std::vec::Vec;
 use std::boxed::Box;
 use std::collections::HashMap;
+use self::core::ops::RangeFull;
 
 #[derive(Debug)]
 pub struct QuadTree<S, T: Debug> {
@@ -11,7 +14,7 @@ pub struct QuadTree<S, T: Debug> {
 #[derive(Debug)]
 enum Child<S, T: Sized + Debug> {
     Inner(Box<Node<S, T>>),
-    Leaf(S, T)
+    Leaf(S, Vec<T>)
 }
 
 impl<S, T: Debug> Child<S, T> {
@@ -53,43 +56,38 @@ impl<S: Span<S, T> + Debug, T: Debug> Node<S, T> {
 
     fn add(&mut self, t: T) {
         let mut sub_spans = self.span.split();
+        // println!("{:?}", sub_spans);
         for (key, span) in sub_spans.drain() {
             if span.contains(&t) {
                 if self.children.contains_key(&key) {
-                    println!("{:?}", self.children.get(&key).unwrap());
+                    let child = self.children.remove(&key).unwrap();
+                    let new_child: Child<S, T> = match child {
+                        Child::Leaf(span, mut v) => {
+                            if v.len() > 1 && self.span.can_split() {
+                                let mut new_node = Node::new(span);
+                                for old_t in v.drain(RangeFull) {
+                                    new_node.add(old_t);
+                                }
+                                new_node.add(t);
+                                Child::Inner(Box::new(new_node))
+                            } else {
+                                v.push(t);
+                                Child::Leaf(span, v)
+                            }
+                        },
+                        Child::Inner(mut b) => {
+                            b.as_mut().add(t);
+                            Child::Inner(b)
+                        }
+                    };
+                    self.children.insert(key.clone(), new_child);
                 } else {
-                    self.children.insert(key.clone(), Child::Leaf(span, t));
+                    self.children.insert(key.clone(), Child::Leaf(span, vec![t]));
                 }
                 return;
             }
         }
-        // for i in 0..4 {
-        //     if sub_spans[i].dir_of(&t) == None {
-        //         // match self.get_child(i) {
-        //         //     Some(c) => c,
-        //         //     None => expr,
-        //         // };
-        //         return;
-        //     }
-        // }
         unreachable!("Tried to add {:?} to node with span {:?}", t, self.span);
-
-
-        // if self.children.len() < 4 {
-        //     self.children.push(Child::Leaf(t));
-        // } else {
-        //     match self.children.pop().unwrap() {
-        //         Child::Leaf(old_t) => {
-        //             let mut new_node = Node::new();
-        //             new_node.add(t);
-        //             new_node.add(old_t);
-        //             self.children.push(Child::Inner(Box::new(new_node)));
-        //         },
-        //         Child::Inner(b) => {
-
-        //         }
-        //     }
-        // }
     }
 
     // fn get_child(&self, i: i32) -> &mut Child<S, T> {
@@ -103,7 +101,7 @@ impl<S: Span<S, T> + Debug, T: Debug> Node<S, T> {
     // }
 
     fn print(&self, depth: usize) {
-        println!("Node");
+        println!("Node {:?}", self.span);
         let indent = String::from_utf8(vec![b' '; 4 * depth]).unwrap();
         for (key, child) in self.children.iter() {
             print!("{}{:?}: ", indent, key);
