@@ -1,14 +1,12 @@
 mod quadtree;
+mod position;
 
-use quadtree::{QuadTree, Position, PosSpan};
+use quadtree::{QuadTree};
+use position::{Position, PosSpan};
 
 fn main() {
 
-    let mut tree = QuadTree::new(PosSpan {
-        nw: Position { x: 0, y: 0 },
-        width: 10,
-        height: 10
-    });
+    let mut tree = QuadTree::new();
     tree.visit();
     tree.add(Position { x: 1, y: 2 });
     tree.add(Position { x: 1, y: 2 });
