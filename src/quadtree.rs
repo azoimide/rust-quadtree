@@ -38,7 +38,7 @@ struct Node<S, T: Sized + Debug> {
     children: HashMap<Dir, Child<S, T>>
 }
 
-impl<S: Span<S, T> + Debug, T: Debug> Node<S, T> {
+impl<S: Span<S, T> + Debug, T: Debug + Clone> Node<S, T> {
 
     fn new(span: S) -> Node<S, T> {
         return Node {
@@ -58,8 +58,6 @@ impl<S: Span<S, T> + Debug, T: Debug> Node<S, T> {
 
     fn add(&mut self, t: T) {
         let mut sub_spans = self.span.split();
-        println!("add span: {:?}", self.span);
-        println!("add sub spans: {:?}", sub_spans);
         for (key, span) in sub_spans.drain() {
             if span.contains(&t) {
                 if self.children.contains_key(&key) {
@@ -100,21 +98,41 @@ impl<S: Span<S, T> + Debug, T: Debug> Node<S, T> {
             print!("{}{:?}: ", indent, key);
             match child {
                 &Child::Inner(ref b) => b.as_ref().print(depth + 1),
-                &Child::Leaf(_, ref t) => println!("{:?}", t),
+                &Child::Leaf(_, ref v) => println!("{:?}", v),
             };
         }
     }
+
+    pub fn scan(&self, span: &S) -> Vec<T> {
+        if !self.span.overlaps(span) {
+            return Vec::new();
+        }
+        let mut result: Vec<T> = Vec::new();
+        for (_, child) in &self.children {
+            match child {
+                &Child::Leaf(_, ref v) => {
+                    for t in v.iter().filter(|t| span.contains(&t)) {
+                        result.push(t.clone());
+                    }
+                },
+                &Child::Inner(ref b) => {
+                    for t in b.as_ref().scan(span) {
+                        result.push(t.clone());
+                    }
+                }
+            };
+        }
+        return result;
+    }
 }
 
-impl<S: Span<S, T> + Debug, T: Debug> QuadTree<S, T> {
+impl<S: Span<S, T> + Debug, T: Debug + Clone> QuadTree<S, T> {
     pub fn new(span: S) -> QuadTree<S, T> {
         return QuadTree { root: Node::new(span) };
     }
 
     pub fn add(&mut self, t: T) {
-        println!("add: {:?}", t);
         self.ensure_contains(&t);
-        println!("---");
         self.root.add(t);
     }
 
@@ -126,11 +144,8 @@ impl<S: Span<S, T> + Debug, T: Debug> QuadTree<S, T> {
     fn ensure_contains(&mut self, t: &T) {
         while !self.root.span.contains(&t) {
             let new_span = self.root.span.expand(&self.root.span.dir_of(&t).unwrap());
-            println!("new span: {:?}", new_span);
             let mut new_root = Node::new(new_span);
-            println!("split: {:?}", new_root.span.split());
             for (dir, span) in new_root.span.split() {
-                println!("root: {:?} sub: {:?}", self.root.span, span);
                 if span == self.root.span {
                     mem::swap(&mut self.root, &mut new_root);
                     self.root.children.insert(dir.clone(), Child::Inner(Box::new(new_root)));
@@ -139,6 +154,10 @@ impl<S: Span<S, T> + Debug, T: Debug> QuadTree<S, T> {
                 // unreachable!();
             }
         }
+    }
+
+    pub fn scan(&self, span: &S) -> Vec<T> {
+        return self.root.scan(span);
     }
 }
 

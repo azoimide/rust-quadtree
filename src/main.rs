@@ -6,20 +6,23 @@ use position::{Position, PosSpan};
 
 fn main() {
 
-    // let mut tree = QuadTree::new(PosSpan::new(0,0,10,10));
-    // // println!("{:?}", tree);
-    // // tree.print();
-    // tree.add(Position { x: 1, y: 2 });
-    // // tree.print();
-    // tree.add(Position { x: 6, y: 2 });
-    // tree.add(Position { x: 1, y: 7 });
-    // tree.add(Position { x: 8, y: 7 });
-    // // tree.print();
-    // tree.add(Position { x: 1, y: 2 });
-    // tree.add(Position { x: 1, y: 2 });
-    // // tree.add(Position { x: 1, y: 2 });
-    // // tree.add(Position { x: 1, y: 2 });
+    let mut tree = QuadTree::new(PosSpan::new(0,0,10,10));
+    // println!("{:?}", tree);
     // tree.print();
+    tree.add(Position { x: 1, y: 2 });
+    // tree.print();
+    tree.add(Position { x: 6, y: 2 });
+    tree.add(Position { x: 1, y: 7 });
+    tree.add(Position { x: 8, y: 7 });
+    // tree.print();
+    tree.add(Position { x: 1, y: 2 });
+    tree.add(Position { x: 1, y: 2 });
+    // tree.add(Position { x: 1, y: 2 });
+    // tree.add(Position { x: 1, y: 2 });
+    tree.print();
+
+    let ps = tree.scan(&PosSpan::new(1, 2, 6, 5));
+    println!("{:?}", ps);
 
     // let mut tree = QuadTree::new(PosSpan::new(0,0,4,4));
     // tree.print();
@@ -34,10 +37,10 @@ fn main() {
     // tree.add(Position { x: 1, y: 3 });
     // tree.print();
 
-    let mut tree = QuadTree::new(PosSpan::new(0,0,2,2));
-    tree.print();
-    tree.add(Position { x: 18, y: 10 });
-    tree.print();
+    // let mut tree = QuadTree::new(PosSpan::new(0,0,2,2));
+    // tree.print();
+    // tree.add(Position { x: 18, y: 10 });
+    // tree.print();
 
 
 }
