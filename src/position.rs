@@ -13,7 +13,17 @@ pub struct PosSpan {
     pub height: i32
 }
 
-impl Span<Position> for PosSpan {
+impl PosSpan {
+    pub fn new(x: i32, y: i32, w: i32, h: i32) -> PosSpan {
+        return PosSpan {
+            nw: Position { x: x, y: y },
+            width: w,
+            height: h
+        };
+    }
+}
+
+impl Span<PosSpan, Position> for PosSpan {
     fn dir_of(&self, t: &Position) -> Option<Dir> {
         if t.x < self.nw.x {
             if t.y < self.nw.y {
@@ -42,7 +52,36 @@ impl Span<Position> for PosSpan {
         }
     }
 
-    // fn split(self) -> Vec<PosSpan> {
+    fn north_span(&self) -> PosSpan {
+        return PosSpan::new(self.nw.x, self.nw.y - self.height, self.width, self.height);
+    }
+    
+    fn south_span(&self) -> PosSpan {
+        return PosSpan::new(self.nw.x, self.nw.y + self.height, self.width, self.height);
+    }
 
-    // }
+    fn west_span(&self) -> PosSpan {
+        return PosSpan::new(self.nw.x - self.width, self.nw.y, self.width, self.height);
+    }
+
+    fn east_span(&self) -> PosSpan {
+        return PosSpan::new(self.nw.x + self.width, self.nw.y, self.width, self.height);
+    }
+
+    fn can_split(&self) -> bool {
+        return self.width > 1 && self.height > 1;
+    }
+
+    fn split(self) -> Vec<PosSpan> {
+        let left_x = self.nw.y;
+        let left_y = self.nw.y;
+        let width_mid = self.width / 2;
+        let height_mid = self.height / 2;
+        return vec![
+            PosSpan::new(left_x, left_y, width_mid, height_mid),
+            PosSpan::new(left_x + width_mid, left_y, self.width - width_mid, height_mid),
+            PosSpan::new(left_x, left_y + height_mid, width_mid, self.height - height_mid),
+            PosSpan::new(left_x + width_mid, left_y + height_mid, self.width - width_mid, self.height - height_mid)
+        ];
+    }
 }

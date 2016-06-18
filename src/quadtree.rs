@@ -88,12 +88,14 @@ impl<T: Debug> QuadTree<T> {
 #[derive(Debug, PartialEq, Eq)]
 pub enum Dir { N, S, E, W, NE, NW, SE, SW }
 
-pub trait Span<T> {
+pub trait Span<S: Span<S, T>, T> {
     fn dir_of(&self, t: &T) -> Option<Dir>;
-    // fn north_span(&self) -> Span<T>;
-    // fn south_span(&self) -> Span<T>;
-    // fn east_span(&self) -> Span<T>;
-    // fn west_span(&self) -> Span<T>;
+    fn can_split(&self) -> bool;
+    fn split(self) -> Vec<S>;
+    fn north_span(&self) -> S;
+    fn south_span(&self) -> S;
+    fn east_span(&self) -> S;
+    fn west_span(&self) -> S;
 }
 
 
