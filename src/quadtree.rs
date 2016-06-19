@@ -38,7 +38,7 @@ struct Node<S, T: Sized + Debug> {
     children: HashMap<Dir, Child<S, T>>
 }
 
-impl<S: Span<S, T> + Debug, T: Debug + Clone> Node<S, T> {
+impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
 
     fn new(span: S) -> Node<S, T> {
         return Node {
@@ -124,9 +124,30 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone> Node<S, T> {
         }
         return result;
     }
+
+    pub fn contains(&self, t: &T) -> bool {
+        if !self.span.contains(t) {
+            return false;
+        }
+        for (_, child) in &self.children {
+            match child {
+                &Child::Leaf(_, ref v) => {
+                    if v.contains(t) {
+                        return true;
+                    }
+                },
+                &Child::Inner(ref b) => {
+                    if b.as_ref().contains(t) {
+                        return true;
+                    }
+                }
+            };
+        }
+        return false;
+    }
 }
 
-impl<S: Span<S, T> + Debug, T: Debug + Clone> QuadTree<S, T> {
+impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
     pub fn new(span: S) -> QuadTree<S, T> {
         return QuadTree { root: Node::new(span) };
     }
@@ -158,6 +179,10 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone> QuadTree<S, T> {
 
     pub fn scan(&self, span: &S) -> Vec<T> {
         return self.root.scan(span);
+    }
+
+    pub fn contains(&self, t: &T) -> bool {
+        return self.root.contains(t);
     }
 }
 
