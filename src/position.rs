@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Values;
 use quadtree::{Span, Dir};
+use std::fmt;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone)]
 pub struct Position {
     x: i32,
     y: i32
@@ -13,6 +14,13 @@ impl Position {
         return Position { x: x, y: y };
     }
 }
+
+impl fmt::Debug for Position {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct PosSpan {
     nw: Position,
