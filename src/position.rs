@@ -8,6 +8,12 @@ pub struct Position {
     pub y: i32
 }
 
+impl Position {
+    pub fn new(x: i32, y: i32) -> Position {
+        return Position { x: x, y: y };
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct PosSpan {
     pub nw: Position,
