@@ -103,7 +103,7 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
         }
     }
 
-    pub fn scan(&self, span: &S) -> Vec<T> {
+    fn scan(&self, span: &S) -> Vec<T> {
         if !self.span.overlaps(span) {
             return Vec::new();
         }
@@ -125,7 +125,7 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
         return result;
     }
 
-    pub fn contains(&self, t: &T) -> bool {
+    fn contains(&self, t: &T) -> bool {
         if !self.span.contains(t) {
             return false;
         }
@@ -184,25 +184,54 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
     pub fn contains(&self, t: &T) -> bool {
         return self.root.contains(t);
     }
+
+    pub fn remove(&self, t: &T) -> bool {
+        unimplemented!();
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum Dir { N, S, E, W, NE, NW, SE, SW }
 
 pub trait Span<S: Span<S, T>, T>: Clone + Eq + PartialEq {
+
+    /// The direction of `t` in relation to `self`, or `None` if
+    /// `self` `contains` `t`.
     fn dir_of(&self, t: &T) -> Option<Dir>;
+
+    /// The span of equal size to the north of `self`.
     fn north_span(&self) -> S;
+
+    /// The span of equal size to the south of `self`.
     fn south_span(&self) -> S;
+
+    /// The span of equal size to the east of `self`.
     fn east_span(&self) -> S;
+
+    /// The span of equal size to the west of `self`.
     fn west_span(&self) -> S;
     
+    /// Returns a new `S` with double the size of `self` expanded
+    /// in the direction `dir`.
     fn expand(&self, dir: &Dir) -> S;
+
+    /// Returns a partition of `self` with four blocks.
+    /// The partition of the result of `expand` must contain the 
+    /// original `S`.
     fn split(&self) -> HashMap<Dir, S>;
+
+    /// Returns true if the span can be split, e.g., if the span is
+    /// represented by integers and the width and height is larger than `1`.
     fn can_split(&self) -> bool;
+    
+    /// Not implemented!
     fn merge(spans: Values<Dir, S>) -> S;
 
+    /// Returns `true` if `self` overlaps with `other`, otherwise `false`.
+    /// Used for `QuadTree.scan`.
     fn overlaps(&self, other: &S) -> bool;
 
+    /// Returns `true` if `self` contains `t`, otherwise `false`.
     fn contains(&self, t: &T) -> bool {
         return self.dir_of(t) == None;
     }
