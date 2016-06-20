@@ -94,7 +94,7 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
 struct Node<S, T: Sized + Debug> {
     span: S, 
     children: HashMap<Dir, Child<S, T>>,
-    size: usize
+    size: usize     // number of elements contained in the span
 }
 
 impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
