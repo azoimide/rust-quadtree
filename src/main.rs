@@ -44,21 +44,25 @@ fn main() {
     // tree.add(Position { x: 18, y: 10 });
     // tree.print();
 
-    let mut tree = QuadTree::new(PosSpan::new(0,0,50,50));
-    for _ in 0..250 {
-        tree.add(Position::new(rand::random::<i32>() % 50, rand::random::<i32>() % 50));
-    }
-    tree.print();
-    // println!("{:?}", tree.scan(&PosSpan::new(10, 10, 10, 10)));
-    // let pos = Position::new(10, 12);
-    // println!("contains {:?}: {:?}", pos, tree.contains(&pos));
-    println!("size: {}", tree.size());
-    println!("actual size: {}", tree.size_actual());
-    let p = Position::new(1, 2);
-    println!("remove {:?}: {}", p, tree.remove(&p));
+//    let mut tree = QuadTree::new(PosSpan::new(0,0,50,50));
+//    for _ in 0..250 {
+//        tree.add(Position::new(rand::random::<i32>() % 50, rand::random::<i32>() % 50));
+//    }
+//    tree.print();
+//    // println!("{:?}", tree.scan(&PosSpan::new(10, 10, 10, 10)));
+//    // let pos = Position::new(10, 12);
+//    // println!("contains {:?}: {:?}", pos, tree.contains(&pos));
+//    println!("size: {}", tree.size());
+//    println!("actual size: {}", tree.size_actual());
+//    let p = Position::new(1, 2);
+//    println!("remove {:?}: {}", p, tree.remove(&p));
 
     // tree.add(Position { x: 18, y: 10 });
     // tree.print();
+
+    let mut tree = QuadTree::new(PosSpan::new(0,0,1,1));
+    tree.add(Position::new(10,10));
+    tree.print();
 
 
 }

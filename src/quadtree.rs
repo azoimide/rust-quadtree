@@ -36,7 +36,9 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
                 if span == self.root.span {
                     mem::swap(&mut self.root, &mut new_root);
                     self.root.size = new_root.size;
-                    self.root.children.insert(dir.clone(), Child::Inner(Box::new(new_root)));
+                    if new_root.size > 0 {
+                        self.root.children.insert(dir.clone(), Child::Inner(Box::new(new_root)));
+                    }
                     break;
                 }
                 // unreachable!();
@@ -234,7 +236,7 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
                 return removed;
             }
         }
-         return 0;
+        return 0;
     }
 
     fn size(&self) -> usize {
