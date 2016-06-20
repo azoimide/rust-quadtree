@@ -151,7 +151,10 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
 
     fn print(&self, depth: usize) {
         println!("Node ({}) {:?}", self.size, self.span);
-        let indent = String::from_utf8(vec![b' '; 4 * depth]).unwrap();
+        let mut indent = String::new();
+        for _ in 0..depth {
+            indent.push_str(".   ");
+        }
         for (key, child) in self.children.iter() {
             print!("{}{:?}: ", indent, key);
             match child {
