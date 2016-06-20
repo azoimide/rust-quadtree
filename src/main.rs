@@ -45,13 +45,15 @@ fn main() {
     // tree.print();
 
     let mut tree = QuadTree::new(PosSpan::new(0,0,50,50));
-    for i in 0..250 {
+    for _ in 0..250 {
         tree.add(Position::new(rand::random::<i32>() % 50, rand::random::<i32>() % 50));
     }
     tree.print();
-    println!("{:?}", tree.scan(&PosSpan::new(10, 10, 10, 10)));
-    let pos = Position::new(10, 12);
-    println!("{:?} {:?}", pos, tree.contains(&pos));
+    // println!("{:?}", tree.scan(&PosSpan::new(10, 10, 10, 10)));
+    // let pos = Position::new(10, 12);
+    // println!("contains {:?}: {:?}", pos, tree.contains(&pos));
+    println!("size: {}", tree.size());
+    println!("actual size: {}", tree.size_actual());
     // tree.add(Position { x: 18, y: 10 });
     // tree.print();
 

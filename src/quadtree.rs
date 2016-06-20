@@ -35,6 +35,7 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
             for (dir, span) in new_root.span.split() {
                 if span == self.root.span {
                     mem::swap(&mut self.root, &mut new_root);
+                    self.root.size = new_root.size;
                     self.root.children.insert(dir.clone(), Child::Inner(Box::new(new_root)));
                     break;
                 }
@@ -49,6 +50,14 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
 
     pub fn contains(&self, t: &T) -> bool {
         return self.root.contains(t);
+    }
+
+    pub fn size(&self) -> usize {
+        return self.root.size;
+    }
+
+    pub fn size_actual(&self) -> usize {
+        return self.root.size();
     }
 
     /// Not implemented!
@@ -85,7 +94,8 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
 #[derive(Debug)]
 struct Node<S, T: Sized + Debug> {
     span: S, 
-    children: HashMap<Dir, Child<S, T>>
+    children: HashMap<Dir, Child<S, T>>,
+    size: usize
 }
 
 impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
@@ -93,11 +103,13 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
     fn new(span: S) -> Node<S, T> {
         return Node {
             span: span,
-            children: HashMap::new()
+            children: HashMap::new(),
+            size: 0
         };
     }
 
     fn add(&mut self, t: T) {
+        self.size += 1;
         let mut sub_spans = self.span.split();
         for (key, span) in sub_spans.drain() {
             if span.contains(&t) {
@@ -138,7 +150,7 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
     }
 
     fn print(&self, depth: usize) {
-        println!("Node {:?}", self.span);
+        println!("Node ({}) {:?}", self.size, self.span);
         let indent = String::from_utf8(vec![b' '; 4 * depth]).unwrap();
         for (key, child) in self.children.iter() {
             print!("{}{:?}: ", indent, key);
@@ -190,6 +202,17 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
             };
         }
         return false;
+    }
+
+    fn size(&self) -> usize {
+        let mut result = 0;
+        for (_, child) in &self.children {
+            result += match child {
+                &Child::Leaf(_, ref v) => v.len(),
+                &Child::Inner(ref b) => b.as_ref().size()
+            }
+        };
+        return result;
     }
 }
 
