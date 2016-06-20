@@ -54,6 +54,9 @@ fn main() {
     // println!("contains {:?}: {:?}", pos, tree.contains(&pos));
     println!("size: {}", tree.size());
     println!("actual size: {}", tree.size_actual());
+    let p = Position::new(1, 2);
+    println!("remove {:?}: {}", p, tree.remove(&p));
+
     // tree.add(Position { x: 18, y: 10 });
     // tree.print();
 

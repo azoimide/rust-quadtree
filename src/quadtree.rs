@@ -60,9 +60,8 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
         return self.root.size();
     }
 
-    /// Not implemented!
-    pub fn remove(&self, t: &T) -> bool {
-        unimplemented!();
+    pub fn remove(&mut self, t: &T) -> usize {
+        return self.root.remove(t);
     }
 
     /// Not implemented!
@@ -205,6 +204,37 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
             };
         }
         return false;
+    }
+
+    fn remove(&mut self, t: &T) -> usize {
+        if !self.span.contains(t) {
+            return 0;
+        }
+
+        for (_, child) in self.children.iter_mut() {
+            let removed = match child {
+                &mut Child::Leaf(_, ref mut v) => {
+                    let mut i = 0;
+                    let mut removed = 0;
+                    while i < v.len() {
+                        if v.get(i).unwrap() == t {
+                            v.remove(i);
+                            removed += 1;
+                        } else {
+                            i += 1;
+                        }
+                    }
+                    removed
+                },
+                &mut Child::Inner(ref mut b) => {
+                    b.as_mut().remove(t)
+                }
+            };
+            if removed > 0 {
+                return removed;
+            }
+        }
+         return 0;
     }
 
     fn size(&self) -> usize {
