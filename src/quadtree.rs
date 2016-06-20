@@ -51,7 +51,33 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
         return self.root.contains(t);
     }
 
+    /// Not implemented!
     pub fn remove(&self, t: &T) -> bool {
+        unimplemented!();
+    }
+
+    /// Not implemented!
+    pub fn nearest<F>(&self, t: &T, norm: F) where F: Fn(&T, &T) -> f32 {
+        unimplemented!();
+    }
+
+    /// Not implemented!
+    pub fn nearest_n<F>(&self, t: &T, n: i32, norm: F) where F: Fn(&T, &T) -> f32 {
+        unimplemented!();
+    }
+
+    /// Not implemented!
+    pub fn smallest_span(&self) -> S {
+        unimplemented!();
+    }
+
+    /// Not implemented!
+    pub fn replace_with(&self, old: &T, new: T) -> bool {
+        unimplemented!();
+    }
+
+    /// Not implemented!
+    pub fn rebalance(&self) {
         unimplemented!();
     }
 }
@@ -193,6 +219,20 @@ pub trait Span<S: Span<S, T>, T>: Clone + Eq + PartialEq {
 
     /// The span of equal size to the west of `self`.
     fn west_span(&self) -> S;
+
+    /// Returns the `S` in the given direction.
+    fn span_at(&self, dir: &Dir) -> S {
+        return match dir {
+            &Dir::N => self.north_span(),
+            &Dir::S => self.south_span(),
+            &Dir::E => self.east_span(),
+            &Dir::W => self.west_span(),
+            &Dir::NE => self.north_span().east_span(),
+            &Dir::NW => self.north_span().west_span(),
+            &Dir::SE => self.south_span().east_span(),
+            &Dir::SW => self.south_span().west_span()
+        };
+    }
     
     /// Returns a new `S` with double the size of `self` expanded
     /// in the direction `dir`.
