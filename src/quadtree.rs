@@ -81,9 +81,13 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
         unimplemented!();
     }
 
-    /// Not implemented!
-    pub fn replace_with(&self, old: &T, new: T) -> bool {
-        unimplemented!();
+
+    // removes all elements equal to 'old' and adds new element 'new'
+    // returns number of elements removed
+    // efficient on small changes in element  
+    pub fn replace_with(&mut self, old: &T, new: T) -> usize {
+        self.ensure_contains(&new);
+        return self.root.replace_with(old, new);
     }
 
     /// Not implemented!
@@ -248,6 +252,24 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
             }
         };
         return result;
+    }
+
+
+    fn replace_with(&mut self, old: &T, new: T) -> usize {
+
+        for (_, child) in self.children.iter_mut() {
+            match child {
+                &mut Child::Inner(ref mut b) => {
+                    if b.as_ref().span.contains(old) && b.as_ref().span.contains(&new) {
+                        return b.as_mut().replace_with(old, new);
+                    }
+                },
+                _ => {}
+            };
+        }
+
+        self.add(new);
+        return self.remove(old);
     }
 }
 
