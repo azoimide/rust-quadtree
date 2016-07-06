@@ -66,6 +66,10 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
         return self.root.remove(t);
     }
 
+    pub fn elements(&self) -> Vec<T> {
+        return self.root.elements();
+    }
+
     /// Not implemented!
     pub fn nearest<F>(&self, t: &T, norm: F) where F: Fn(&T, &T) -> f32 {
         unimplemented!();
@@ -241,6 +245,25 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> Node<S, T> {
             }
         }
         return 0;
+    }
+
+    pub fn elements(&self) -> Vec<T> {
+        let mut result = Vec::with_capacity(self.size);
+        for child in self.children.values() {
+            match child {
+                &Child::Leaf(_, ref v) => {
+                    for elem in v {
+                        result.push(elem.clone());
+                    }
+                },
+                &Child::Inner(ref b) => {
+                    for elem in b.as_ref().elements() {
+                        result.push(elem);
+                    }
+                }
+            };
+        }
+        return result;
     }
 
     fn size(&self) -> usize {
