@@ -5,7 +5,9 @@ use std::fmt::Debug;
 use std::vec::Vec;
 use std::boxed::Box;
 use std::collections::HashMap;
+use std::collections::BinaryHeap;
 use std::collections::hash_map::Values;
+use std::cmp::{Ordering};
 use self::core::ops::RangeFull;
 
 #[derive(Debug)]
@@ -71,12 +73,24 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
     }
 
     /// Not implemented!
-    pub fn nearest<F>(&self, t: &T, norm: F) where F: Fn(&T, &T) -> f32 {
+    pub fn nearest(&self, t: &T) -> Option<T> {
         unimplemented!();
     }
 
     /// Not implemented!
-    pub fn nearest_n<F>(&self, t: &T, n: i32, norm: F) where F: Fn(&T, &T) -> f32 {
+    pub fn nearest_n(&self, t: &T, n: i32) -> Vec<T> {
+        let regions = BinaryHeap::new();
+        for child in self.root.children.values() {
+            let (nearest, furthest) = match child {
+                &Child::Leaf(ref s, _) => (s.nearest(t), s.furthest(t)),
+                &Child::Inner(ref b) => (b.as_ref().span.nearest(t), b.as_ref().furthest(t))
+            };
+            regions.push(NearestStruct {
+                child: child,
+                nearest: nearest,
+                furthest: furthest
+            });
+        }
         unimplemented!();
     }
 
@@ -97,6 +111,33 @@ impl<S: Span<S, T> + Debug, T: Debug + Clone + PartialEq> QuadTree<S, T> {
     /// Not implemented!
     pub fn rebalance(&self) {
         unimplemented!();
+    }
+}
+
+#[derive(Debug)]
+struct NearestStruct<'a, S, T: Debug> {
+    child: &'a Child<S, T>,
+    nearest: f32,
+    furthest: f32
+}
+
+impl<'a, S, T> PartialEq for NearestStruct<'a, S, T> {
+    fn eq(&self, other: &Self) -> Ordering {
+        return self.furthest.eq(other.furthest);
+    }
+}
+
+impl<'a, S, T> Eq for NearestStruct<'a, S, T> {}
+
+impl<'a, S, T> PartialOrd for NearestStruct<'a, S, T> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        return self.furthest.partial_cmp(other.furthest);
+    }
+}
+
+impl<'a, S, T> Ord for NearestStruct<'a, S, T> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        return self.furthest.cmp(other.furthest);
     }
 }
 
